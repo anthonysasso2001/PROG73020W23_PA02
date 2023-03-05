@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
 using MoviesApp.Entities;
-using MoviesApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,7 @@ builder.Services.AddControllersWithViews();
 var connStr = builder.Configuration.GetConnectionString("MoviesDB");
 builder.Services.AddDbContext<MovieDbContext>(options => options.UseSqlServer(connStr));
 
-builder.Services.AddHostedService<MovieNotifyService>();
+builder.Services.AddDbContext<NotifierContext>(options => options.UseSqlite("DataSource=:memory:"));
 
 var app = builder.Build();
 

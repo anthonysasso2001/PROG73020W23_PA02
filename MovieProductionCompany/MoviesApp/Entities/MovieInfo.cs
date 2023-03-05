@@ -33,5 +33,17 @@ namespace MoviesApp.Entities
 		public int? ProductionStudioId { get; set; }
 
 		public ProductionStudio? ProductionStudio { get; set; }
+
+		//copy constructor to get data from movie quicker
+		public void copyMovie(Movie inMovie, ProductionStudio inProdStudio)
+		{
+			this.MovieId = inMovie.MovieId;
+			this.Name = inMovie.Name;
+			this.Year = inMovie.Year;
+			this.GenreId = inMovie.GenreId;
+			this.Genre = inMovie.Genre;
+			this.ProductionStudioId = inProdStudio.ProductionStudioId;
+			this.ProductionStudio = inProdStudio;
+		}
 	}
 }
