@@ -15,7 +15,7 @@ namespace MoviesApp.Entities
         public int? Year { get; set; }
 
         [Required(ErrorMessage = "Please enter a rating.")]
-        [Range(1, 5, ErrorMessage = "Rating must be btween 1 and 5.")]
+        [Range(1, 5, ErrorMessage = "Rating must be between 1 and 5.")]
         public int? Rating { get; set; }
 
         // Add a Genre by adding "a foreign key relationship". We do this by adding

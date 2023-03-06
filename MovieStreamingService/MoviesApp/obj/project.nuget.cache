@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/aIk3cAAZ+z6yzazifHUABqvlUNNEGM9PcNXYuy48NuQ2oF3QMWxVfgAf3/roBo/xAXAgVeiQaTvrXJGiIz0/Q==",
+  "dgSpecHash": "EcYqEvaCT4Y7d6jxz98ZxSWonIrGE4oqs7d3+m4I+TSwknui9+2HApsU5idRZzjXES/YJ/zTZzY3hJgyZN1iNw==",
   "success": true,
-  "projectFilePath": "D:\\source\\Conestoga_Year_03\\Winter_2023\\PROG73020W23-EnterpriseAppDev\\pa2-starting-code\\MovieStreamingService\\MoviesApp\\MoviesApp.csproj",
+  "projectFilePath": "D:\\source\\Conestoga_Year_03\\Winter_2023\\PROG73020W23-EnterpriseAppDev\\PROG73020W23_PA02\\MovieStreamingService\\MoviesApp\\MoviesApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\antho\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\antho\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",

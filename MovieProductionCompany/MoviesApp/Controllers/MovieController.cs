@@ -3,15 +3,17 @@ using Microsoft.EntityFrameworkCore;
 
 using MoviesApp.Entities;
 using MoviesApp.Models;
+using MoviesApp.Services;
 
 namespace MoviesApp.Controllers
 {
     public class MovieController : Controller
     {
-        public MovieController(MovieDbContext movieDbContext)
+        public MovieController(MovieDbContext movieDbContext, APIBroadcastService apiBroadcastService)
         {
             _movieDbContext = movieDbContext;
-        }
+			_apiBroadcastService = apiBroadcastService;
+		}
 
         [HttpGet("/movies")]
         public IActionResult GetAllMovies()
@@ -67,7 +69,10 @@ namespace MoviesApp.Controllers
 
                 TempData["LastActionMessage"] = $"The movie \"{movieViewModel.ActiveMovie.Name}\" ({movieViewModel.ActiveMovie.Year}) was added.";
 
-                return RedirectToAction("GetAllMovies", "Movie");
+				//broadcast new movie once it is added
+				_apiBroadcastService.thisCompany.NewMovie(movieViewModel.ActiveMovie);
+
+				return RedirectToAction("GetAllMovies", "Movie");
             }
             else
             {
@@ -187,5 +192,6 @@ namespace MoviesApp.Controllers
         }
 
         private MovieDbContext _movieDbContext;
-    }
+		private APIBroadcastService _apiBroadcastService;
+	}
 }
