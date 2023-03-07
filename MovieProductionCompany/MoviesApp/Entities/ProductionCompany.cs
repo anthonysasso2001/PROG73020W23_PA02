@@ -38,7 +38,7 @@
 			return new Unsubscriber(observers, observer);
 		}
 
-		public void NewMovie(Movie newMovie)
+		public void NewMovie(Movie newMovie, MovieDbContext dbCon)
 		{
 			MovieApiData newMovieInfo = new MovieApiData();
 
@@ -53,6 +53,8 @@
 
 			foreach (var observer in observers)
 				observer.OnNext(newMovieInfo);
+
+			dbCon.MovieApiData.Add(newMovieInfo);
 
 			_latestMovie = newMovieInfo;
 		}

@@ -13,7 +13,7 @@ var connStr = builder.Configuration.GetConnectionString("MoviesDB");
 
 builder.Services.AddDbContext<MovieDbContext>(options => options.UseSqlServer(connStr));
 
-builder.Services.AddSingleton<APIBroadcastInterface, APIBroadcastService>();
+builder.Services.AddScoped<APIBroadcastInterface, APIBroadcastService>();
 
 var app = builder.Build();
 
