@@ -6,12 +6,10 @@ namespace MoviesApp.Services
 {
 	public class APIBroadcastService : APIBroadcastInterface
 	{
-		public APIBroadcastService()
+		public APIBroadcastService(MovieDbContext movieDbContext)
 		{
-			MovieDbContext movieDbContext
-			APIBroadcastService apiBroadcastService;
-
-			apiBroadcastService.thisCompany.ProductionStudio = movieDbContext.ProductionStudios.FirstOrDefault();
+			
+			thisCompany.ProductionStudio = movieDbContext.ProductionStudios.FirstOrDefault();
 
 			//make all stream companies and subscribe them on construction
 			var streamersInfo = movieDbContext.StreamCompanies
@@ -21,9 +19,9 @@ namespace MoviesApp.Services
 					webApi = i.webApi
 				}).ToList();
 			foreach (var sInfo in streamersInfo)
-				apiBroadcastService.streamers.Add(new StreamCompany() { streamCompanyInfo = sInfo });
+				streamers.Add(new StreamCompany() { streamCompanyInfo = sInfo });
 
-			apiBroadcastService.streamers.ForEach(s => apiBroadcastService.thisCompany.Subscribe(s));
+			streamers.ForEach(s => thisCompany.Subscribe(s));
 		}
 
 		public ProductionCompany thisCompany
