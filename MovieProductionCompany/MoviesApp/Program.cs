@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
 using MoviesApp.Entities;
-using MoviesApp.Interfaces;
-using MoviesApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +10,6 @@ builder.Services.AddControllersWithViews();
 var connStr = builder.Configuration.GetConnectionString("MoviesDB");
 
 builder.Services.AddDbContext<MovieDbContext>(options => options.UseSqlServer(connStr));
-
-builder.Services.AddScoped<APIBroadcastInterface, APIBroadcastService>();
 
 var app = builder.Build();
 
