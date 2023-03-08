@@ -18,7 +18,7 @@ namespace MovieProductionApp.Entities
         public ICollection<MovieApiData>? RegisteredMovies { get; set; }
 	}
 
-	//was goin to use following but it didn't work very well?? idk why
+	//was going to use following as a "sub table" but it didn't work very well?? prob not needed anyways
 	/*
 	public class StreamCompanyAuth
 	{

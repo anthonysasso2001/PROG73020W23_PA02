@@ -31,15 +31,31 @@ namespace MovieProductionApp.Controllers
         }
 
         // GET: all streaming companies with their registered movies
-        [HttpGet("/streaming-companies")]
-        public IActionResult GetAllStreamingCompanies()
+        [HttpGet("/movie-registry")]
+        public IActionResult GetMovieRegistry()
         {
-            var allStreamCompanies = _movieDbContext.StreamCompanies
-                .Include(s => s.RegisteredMovies)
-                .OrderByDescending(s => s.Name)
-                .Select(s => new StreamCompanyViewModel() { ActiveStreamCompany = s }).ToList();
+            var movieRegistryData = _movieDbContext.MovieApiData
+                 .Include(m => m.Movie)
+                 .Include(m => m.ProductionStudio)
+                 .Include(m => m.StreamPartner)
+                 .OrderByDescending(m => m.TimeOfOffer)
+                 .Where(m => m.Availability == true)
+                 .Select(m => new MovieRegistrationViewModel()
+                 {
+                     ActiveMovieInfo = new MovieApiInfo()
+                     {
+                         TimeOfOffer = m.TimeOfOffer,
+                         StreamPartner = m.StreamPartner.Name,
+                         Name = m.Movie.Name,
+                         Year = m.Movie.Year,
+                         AverageRating = (int)m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
+                         GenreId = m.Movie.GenreId,
+                         ProductionStudio = m.ProductionStudio
+                     },
+                     MovieAvailability = m.Availability
+                 }).ToList();
 
-            return View("Items", allStreamCompanies);
+            return View("FullMovieRegistry", movieRegistryData);
         }
 
         //GET: one streaming partner with their api information etc.

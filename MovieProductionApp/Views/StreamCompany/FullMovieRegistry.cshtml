@@ -1,5 +1,31 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<MovieRegistrationViewModel>
+
 @{
+    ViewData["Title"] = "All Movies";
 }
+
+<div class="row g-2">
+    @foreach (var movieRegistry in Model)
+    {
+        <div class="card col-sm-12 col-md 16">
+            <h5 class="card-header">
+                @movieRegistry.ActiveMovieInfo.Name
+            </h5>
+            <div class="card-body">
+                <p class="card-text">Release: @movieRegistry.ActiveMovieInfo.Year</p>
+                <p class="card-text">Average Rating: @movieRegistry.ActiveMovieInfo.AverageRating</p>
+                <p class="card-text">Production Studio: @movieRegistry.ActiveMovieInfo.ProductionStudio.Name</p>
+                <p class="card-text">Time of Offer: @movieRegistry.ActiveMovieInfo.TimeOfOffer</p>
+            </div>
+            <p>To make an offer, please send a request through the movie API on your site</p>
+        </div>
+    }
+</div>
+
+@*
+    @movieRegistry.ActiveMovieInfo.Name
+    @movieRegistry.ActiveMovieInfo.Year
+    @movieRegistry.ActiveMovieInfo.AverageRating
+    @movieRegistry.ActiveMovieInfo.ProductionStudio.Name
+    @movieRegistry.ActiveMovieInfo.TimeOfOffer
+*@

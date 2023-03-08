@@ -16,6 +16,8 @@ namespace MovieProductionApp.Entities
 		[ValidateNever]
 		public Movie Movie { get; set; } = null!;
 
+		public bool Availability { get; set; } = true;
+
 		[Required(ErrorMessage = "Please specify a production studio.")]
 		public int? ProductionStudioId { get; set; }
 		[ValidateNever]

@@ -51,6 +51,7 @@ namespace MovieProductionApp.Controllers
 				.Include(m => m.ProductionStudio)
 				.Include(m => m.StreamPartner)
 				.OrderByDescending(m => m.TimeOfOffer)
+				.Where(m => m.Availability == true)
 				.Select(m => new MovieApiInfo()
 				{
 					TimeOfOffer = m.TimeOfOffer,
