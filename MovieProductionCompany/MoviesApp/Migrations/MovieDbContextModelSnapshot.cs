@@ -244,12 +244,17 @@ namespace MoviesApp.Migrations
                     b.Property<int?>("ProductionStudioId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("StreamCompanyInfoId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("TimeOfOffer")
                         .HasColumnType("datetime2");
 
                     b.HasKey("MovieId", "ProductionStudioId");
 
                     b.HasIndex("ProductionStudioId");
+
+                    b.HasIndex("StreamCompanyInfoId");
 
                     b.ToTable("MovieApiData");
 
@@ -372,13 +377,20 @@ namespace MoviesApp.Migrations
 
             modelBuilder.Entity("MoviesApp.Entities.StreamCompanyInfo", b =>
                 {
+                    b.Property<int?>("StreamCompanyInfoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("StreamCompanyInfoId"));
+
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("webApi")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("webApiUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Name", "webApi");
+                    b.HasKey("StreamCompanyInfoId");
 
                     b.ToTable("StreamCompanies");
                 });
@@ -427,9 +439,15 @@ namespace MoviesApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MoviesApp.Entities.StreamCompanyInfo", "StreamPartner")
+                        .WithMany("RegisteredMovies")
+                        .HasForeignKey("StreamCompanyInfoId");
+
                     b.Navigation("Movie");
 
                     b.Navigation("ProductionStudio");
+
+                    b.Navigation("StreamPartner");
                 });
 
             modelBuilder.Entity("MoviesApp.Entities.Review", b =>
@@ -441,6 +459,34 @@ namespace MoviesApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Movie");
+                });
+
+            modelBuilder.Entity("MoviesApp.Entities.StreamCompanyInfo", b =>
+                {
+                    b.OwnsOne("MoviesApp.Entities.StreamCompanyAuth", "StreamCompanyAuth", b1 =>
+                        {
+                            b1.Property<int?>("StreamCompanyInfoId")
+                                .HasColumnType("int");
+
+                            b1.Property<Guid>("Guid")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("challengeUrl")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("StreamCompanyInfoId");
+
+                            b1.ToTable("StreamCompanyAuths");
+
+                            b1.WithOwner("StreamCompany")
+                                .HasForeignKey("StreamCompanyInfoId");
+
+                            b1.Navigation("StreamCompany");
+                        });
+
+                    b.Navigation("StreamCompanyAuth")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MoviesApp.Entities.Actor", b =>
@@ -458,6 +504,11 @@ namespace MoviesApp.Migrations
                     b.Navigation("Castings");
 
                     b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("MoviesApp.Entities.StreamCompanyInfo", b =>
+                {
+                    b.Navigation("RegisteredMovies");
                 });
 #pragma warning restore 612, 618
         }

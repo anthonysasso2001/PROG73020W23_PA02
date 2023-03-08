@@ -26,7 +26,7 @@ namespace MoviesApp.Entities
 		public virtual void SendNotification(MovieApiData newMovie)
 		{
 			foreach (var streamer in StreamCompanies)
-				sendToOne(newMovie, streamer.webApi.ToString());
+				sendToOne(newMovie, streamer.webApiUrl.ToString());
 		}
 
 		public void registerMovie(Movie newMovie, MovieDbContext dbCon)

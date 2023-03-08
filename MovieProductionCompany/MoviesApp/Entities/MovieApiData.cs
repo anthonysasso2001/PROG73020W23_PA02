@@ -8,6 +8,9 @@ namespace MoviesApp.Entities
 		//this represents the time the offer was first created
 		public DateTime TimeOfOffer { get; set; }
 
+		public int? StreamCompanyInfoId { get; set; }
+		public StreamCompanyInfo? StreamPartner { get; set; } = null!;
+
 		[Required(ErrorMessage = "Movie Required For Reference")]
 		public int? MovieId { get; set; }
 		[ValidateNever]

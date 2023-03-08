@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MoviesApp.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class authInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,12 +56,14 @@ namespace MoviesApp.Migrations
                 name: "StreamCompanies",
                 columns: table => new
                 {
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    webApi = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    StreamCompanyInfoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    webApiUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StreamCompanies", x => new { x.Name, x.webApi });
+                    table.PrimaryKey("PK_StreamCompanies", x => x.StreamCompanyInfoId);
                 });
 
             migrationBuilder.CreateTable(
@@ -82,6 +84,25 @@ namespace MoviesApp.Migrations
                         column: x => x.GenreId,
                         principalTable: "Genres",
                         principalColumn: "GenreId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StreamCompanyAuths",
+                columns: table => new
+                {
+                    StreamCompanyInfoId = table.Column<int>(type: "int", nullable: false),
+                    challengeUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Guid = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StreamCompanyAuths", x => x.StreamCompanyInfoId);
+                    table.ForeignKey(
+                        name: "FK_StreamCompanyAuths_StreamCompanies_StreamCompanyInfoId",
+                        column: x => x.StreamCompanyInfoId,
+                        principalTable: "StreamCompanies",
+                        principalColumn: "StreamCompanyInfoId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -116,7 +137,8 @@ namespace MoviesApp.Migrations
                 {
                     MovieId = table.Column<int>(type: "int", nullable: false),
                     ProductionStudioId = table.Column<int>(type: "int", nullable: false),
-                    TimeOfOffer = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    TimeOfOffer = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StreamCompanyInfoId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -133,6 +155,11 @@ namespace MoviesApp.Migrations
                         principalTable: "ProductionStudios",
                         principalColumn: "ProductionStudioId",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MovieApiData_StreamCompanies_StreamCompanyInfoId",
+                        column: x => x.StreamCompanyInfoId,
+                        principalTable: "StreamCompanies",
+                        principalColumn: "StreamCompanyInfoId");
                 });
 
             migrationBuilder.CreateTable(
@@ -213,12 +240,12 @@ namespace MoviesApp.Migrations
 
             migrationBuilder.InsertData(
                 table: "MovieApiData",
-                columns: new[] { "MovieId", "ProductionStudioId", "TimeOfOffer" },
+                columns: new[] { "MovieId", "ProductionStudioId", "StreamCompanyInfoId", "TimeOfOffer" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2010, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, 1, new DateTime(2012, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, 1, new DateTime(2020, 9, 30, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, 1, null, new DateTime(2010, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 1, null, new DateTime(2012, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, 1, null, new DateTime(2020, 9, 30, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(
@@ -243,6 +270,11 @@ namespace MoviesApp.Migrations
                 name: "IX_MovieApiData_ProductionStudioId",
                 table: "MovieApiData",
                 column: "ProductionStudioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MovieApiData_StreamCompanyInfoId",
+                table: "MovieApiData",
+                column: "StreamCompanyInfoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Movies_GenreId",
@@ -274,7 +306,7 @@ namespace MoviesApp.Migrations
                 name: "Review");
 
             migrationBuilder.DropTable(
-                name: "StreamCompanies");
+                name: "StreamCompanyAuths");
 
             migrationBuilder.DropTable(
                 name: "Actors");
@@ -284,6 +316,9 @@ namespace MoviesApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "Movies");
+
+            migrationBuilder.DropTable(
+                name: "StreamCompanies");
 
             migrationBuilder.DropTable(
                 name: "Genres");

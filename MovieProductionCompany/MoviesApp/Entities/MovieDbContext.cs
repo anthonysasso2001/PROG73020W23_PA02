@@ -26,28 +26,48 @@ namespace MoviesApp.Entities
 
 		public DbSet<StreamCompanyInfo> StreamCompanies { get; set; }
 
+		public DbSet<StreamCompanyAuth> StreamCompanyAuths { get; set; }
+
 		public DbSet<MovieApiData> MovieApiData { get; set; }
 
 		// override the protected OnModelCreating method to seed the DB w some movies
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			// setup the composite key in Castings:
-			modelBuilder.Entity<Casting>().HasKey(c => new { c.ActorId, c.MovieId });
+			modelBuilder.Entity<Casting>()
+				.HasKey(c => new { c.ActorId, c.MovieId });
 
 			// setup 1-to-many between movie & casting:
-			modelBuilder.Entity<Casting>().HasOne(c => c.Movie).WithMany(m => m.Castings).HasForeignKey(c => c.MovieId);
+			modelBuilder.Entity<Casting>()
+				.HasOne(c => c.Movie)
+				.WithMany(m => m.Castings)
+				.HasForeignKey(c => c.MovieId);
 
 			// setup 1-to-many between actor & casting:
-			modelBuilder.Entity<Casting>().HasOne(c => c.Actor).WithMany(m => m.Castings).HasForeignKey(c => c.ActorId);
+			modelBuilder.Entity<Casting>()
+				.HasOne(c => c.Actor)
+				.WithMany(m => m.Castings)
+				.HasForeignKey(c => c.ActorId);
 
 			//make api info also stored based on production company & movie FK
-			modelBuilder.Entity<MovieApiData>().HasKey(m => new { m.MovieId, m.ProductionStudioId });
+			modelBuilder.Entity<MovieApiData>()
+				.HasKey(m => new { m.MovieId, m.ProductionStudioId });
 
 			// make name and webApi unique key for streaming company (in case they have multiple sites etc. they want to be sent to?
-			modelBuilder.Entity<StreamCompanyInfo>().HasKey(s => new { s.Name, s.webApi });
+			modelBuilder.Entity<MovieApiData>()
+				.HasOne(m => m.StreamPartner)
+				.WithMany(s => s.RegisteredMovies)
+				.HasForeignKey(m => m.StreamCompanyInfoId);
+
+			modelBuilder.Entity<StreamCompanyAuth>()
+				.OwnsOne(a => a.StreamCompany)
+				.WithOwner(i => i.StreamCompanyAuth)
+				.HasForeignKey(a => a.StreamCompanyAuthId);
 
 			//make production company names unique
-			modelBuilder.Entity<ProductionStudio>().HasIndex(p => p.Name).IsUnique();
+			modelBuilder.Entity<ProductionStudio>()
+				.HasIndex(p => p.Name)
+				.IsUnique();
 
 			modelBuilder.Entity<Genre>().HasData(
 				new Genre() { GenreId = "A", Name = "Action" },

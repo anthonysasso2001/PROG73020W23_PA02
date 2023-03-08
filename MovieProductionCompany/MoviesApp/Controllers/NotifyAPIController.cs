@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoviesApp.Entities;
@@ -28,7 +29,7 @@ namespace MoviesApp.Controllers
 				.Select(i => new StreamCompanyInfo()
 				{
 					Name = i.Name,
-					webApi = i.webApi
+					webApiUrl = i.webApiUrl
 				}).ToList()
 			};
 		}
@@ -42,7 +43,7 @@ namespace MoviesApp.Controllers
 				.Select(s => new StreamCompanyInfo()
 				{
 					Name = s.Name,
-					webApi = s.webApi
+					webApiUrl = s.webApiUrl
 				}).ToList();
 
 			return Json(streamers);
@@ -56,7 +57,7 @@ namespace MoviesApp.Controllers
 				.Select(s => new StreamCompanyInfo()
 				{
 					Name = s.Name,
-					webApi = s.webApi
+					webApiUrl = s.webApiUrl
 				}).Where(s => s.Name.Equals(name))
 				.FirstOrDefault();
 
@@ -67,7 +68,7 @@ namespace MoviesApp.Controllers
 		[HttpPost("/api/streamers")]
 		public IActionResult Post([FromBody] StreamCompanyInfo companyInfo)
 		{
-			if (null == companyInfo || null == companyInfo.Name || null == companyInfo.webApi)
+			if (null == companyInfo || null == companyInfo.Name || null == companyInfo.webApiUrl)
 				return BadRequest();
 
 			_movieDbContext.StreamCompanies.Add(companyInfo);
@@ -101,7 +102,7 @@ namespace MoviesApp.Controllers
 				.Select(s => new StreamCompanyInfo()
 				{
 					Name = s.Name,
-					webApi = s.webApi
+					webApiUrl = s.webApiUrl
 				}).Where(s => s.Name.Equals(name))
 				.FirstOrDefault();
 
@@ -136,7 +137,8 @@ namespace MoviesApp.Controllers
 			var movieReviews = _movieDbContext.MovieApiData
 				.Include(m => m.Movie)
 				.OrderByDescending(m => m.TimeOfOffer)
-				.Select(m => m.Movie.Reviews).FirstOrDefault().ToList();
+				.Select(m => m.Movie)
+				.Select(m => m.Reviews).FirstOrDefault().ToList();
 
 			//get average rating to send
 			int? movieRating = 0;
@@ -156,9 +158,12 @@ namespace MoviesApp.Controllers
 			var movieData = _movieDbContext.MovieApiData
 				.Include(m => m.Movie)
 				.Include(m => m.ProductionStudio)
+				.Include(m => m.StreamPartner)
 				.OrderByDescending(m => m.TimeOfOffer)
 				.Select(m => new MovieApiInfo()
 				{
+					TimeOfOffer = m.TimeOfOffer,
+					StreamPartner = m.StreamPartner.Name,
 					Name = m.Movie.Name,
 					Year = m.Movie.Year,
 					Rating = movieRating,
@@ -169,7 +174,54 @@ namespace MoviesApp.Controllers
 			return Json(movieData);
 		}
 
+		[HttpPost("/api/notification/{name}")]
+		public JsonResult GetInterest([FromBody] StreamCompanyInfo streamCompany, string name)
+		{
+			var movieReviews = _movieDbContext.MovieApiData
+				.Include(m => m.Movie)
+				.OrderByDescending(m => m.TimeOfOffer)
+				.Select (m => m.Movie)
+				.Where(m => m.Name == name)
+				.Select(m => m.Reviews).FirstOrDefault().ToList();
+
+			//get average rating to send
+			int? movieRating = 0;
+			int count = 0;
+
+			if (movieReviews.IsNullOrEmpty())
+				return Json(null);
+
+			foreach (var review in movieReviews)
+			{
+				movieRating += review.Rating;
+				count++;
+			}
+
+			movieRating /= count;
+
+			var movieData = _movieDbContext.MovieApiData
+				.Include(m => m.Movie)
+				.Include(m => m.ProductionStudio)
+				.Include(m => m.StreamPartner)
+				.OrderByDescending(m => m.TimeOfOffer)
+				.Select(m => new MovieApiInfo()
+				{
+					TimeOfOffer = m.TimeOfOffer,
+					StreamPartner = m.StreamPartner.Name,
+					Name = m.Movie.Name,
+					Year = m.Movie.Year,
+					Rating = movieRating,
+					GenreId = m.Movie.GenreId,
+					ProductionStudio = m.ProductionStudio
+				}).Where(m => m.Name == name).FirstOrDefault();
+
+			movieData.StreamPartner = streamCompany.Name;
+
+			return Json(null);
+		}
+
 		private MovieDbContext _movieDbContext;
+		private readonly IAuthorizationService _authorizationService;
 		private NotifyAPIHandler _notifyHandler;
 	}
 }

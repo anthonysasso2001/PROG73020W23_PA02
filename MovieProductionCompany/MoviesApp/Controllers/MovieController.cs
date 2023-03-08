@@ -25,7 +25,7 @@ namespace MoviesApp.Controllers
 				.Select(i => new StreamCompanyInfo()
 				{
 					Name = i.Name,
-					webApi = i.webApi
+					webApiUrl = i.webApiUrl
 				}).ToList()
 			};
 		}
