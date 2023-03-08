@@ -2,6 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using MovieProductionApp.Entities;
 using MovieProductionApp.Models;
+using System.Security.Cryptography;
+using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http.Json;
+using NuGet.Protocol;
 
 namespace MovieProductionApp.Controllers
 {
@@ -68,6 +73,40 @@ namespace MovieProductionApp.Controllers
             StreamCompanyViewModel outViewModel = new StreamCompanyViewModel() { ActiveStreamCompany = streamingCompany };
 
             return View("Details", outViewModel);
+        }
+
+        [HttpPost("/streaming-companies/verify")]
+        public IActionResult VerifyStreamingCompany(StreamCompanyViewModel StreamCompany)
+        {
+            //send verification request
+            HttpClient httpClient = new HttpClient();
+            string url = StreamCompany.ActiveStreamCompany.challengeUrl;
+            string randString = RandomNumberGenerator.GetBytes(64).ToString();
+
+            APIChallengeRequest apichallenge = new APIChallengeRequest()
+            {
+                challengeString = randString,
+            };
+
+            using (var content = new StringContent(JsonConvert.SerializeObject(apichallenge),System.Text.Encoding.UTF8, "application/json"))
+            {
+                HttpResponseMessage result = httpClient.PostAsync(url, content).Result;
+                string challengeAnswer = StreamCompany.ActiveStreamCompany.StreamGUID.ToString() + randString;
+                if (result.Content.ReadAsStream().ToString() == challengeAnswer)
+                {
+                    var dbStreamCompany = _movieDbContext.StreamCompanies
+                        .Where(s => s.StreamCompanyInfoId == StreamCompany.ActiveStreamCompany.StreamCompanyInfoId).FirstOrDefault();
+                    dbStreamCompany.verificationStatus = true;
+
+                    _movieDbContext.Update(dbStreamCompany);
+
+                    _movieDbContext.SaveChanges();
+
+                    StreamCompany.ActiveStreamCompany = dbStreamCompany;
+                }
+            }
+
+            return View("StreamCompany", StreamCompany);
         }
 
         [HttpGet("/streaming-companies/register")]
