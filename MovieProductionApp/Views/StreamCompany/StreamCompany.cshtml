@@ -4,6 +4,18 @@
 	ViewData["Title"] = Model.ActiveStreamCompany.Name + " Information";
 }
 
-<div class="row">
-	<p></p>
+<div>
+	<p>Web API</p>
+	<p>@Model.ActiveStreamCompany.webApiUrl</p>
 </div>
+
+<div>
+	<p>Challenge URL</p>
+	<p>@Model.ActiveStreamCompany.challengeUrl</p>
+</div>
+
+<div>
+	<p>API Key</p>
+	<p>@Model.ActiveStreamCompany.StreamGUID</p>
+</div>
+

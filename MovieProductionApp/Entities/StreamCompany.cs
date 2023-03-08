@@ -13,8 +13,8 @@ namespace MovieProductionApp.Entities
         [Required(ErrorMessage = "Please enter a Challenge URL.")]
         public string challengeUrl { get; set; }
 
-        public bool verificationStatus { get; set; } = false;
-        public Guid? StreamGUID { get; set; }
+        public bool verificationStatus { get; set; } = false!;
+        public Guid StreamGUID { get; set; }
         public ICollection<MovieApiData>? RegisteredMovies { get; set; }
 	}
 

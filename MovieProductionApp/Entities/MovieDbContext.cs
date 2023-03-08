@@ -66,6 +66,10 @@ namespace MovieProductionApp.Entities
 				.HasIndex(s => s.StreamGUID)
 				.IsUnique();
 
+			//to ensure these don't get repeated, and that guid is not null in the db
+			modelBuilder.Entity<StreamCompanyInfo>()
+				.HasAlternateKey(s => new { s.Name, s.webApiUrl });
+
 			//now seed data
 
 			modelBuilder.Entity<Genre>().HasData(

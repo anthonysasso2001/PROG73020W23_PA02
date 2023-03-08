@@ -64,24 +64,30 @@ namespace MovieProductionApp.Controllers
         [HttpPost("/streaming-companies")]
         public IActionResult AddStreamingCompany(StreamCompanyViewModel streamCompany)
         {
-            var companyInfo = streamCompany.ActiveStreamCompany;
-
-            if (null == companyInfo || null == companyInfo.Name || null == companyInfo.webApiUrl || null == companyInfo.challengeUrl)
+            if (null == streamCompany.ActiveStreamCompany ||
+                null == streamCompany.ActiveStreamCompany.Name ||
+                null == streamCompany.ActiveStreamCompany.webApiUrl ||
+                null == streamCompany.ActiveStreamCompany.challengeUrl)
                 return BadRequest();
 
             //generate a custom guid or regenerate if it already exists
-            while (null == companyInfo.StreamGUID)
+            bool uniqueGuid = false;
+            while (!uniqueGuid)
             {
-                companyInfo.StreamGUID = Guid.NewGuid();
+				streamCompany.ActiveStreamCompany.StreamGUID = Guid.NewGuid();
                 // if it exists re-run loop
-                if (_movieDbContext.StreamCompanies.Any(s => s.StreamGUID == companyInfo.StreamGUID))
-                    companyInfo.StreamGUID = null;
+                if (!_movieDbContext.StreamCompanies.Any(s => s.StreamGUID == streamCompany.ActiveStreamCompany.StreamGUID))
+                    uniqueGuid = true;
             }
-            _movieDbContext.StreamCompanies.Add(companyInfo);
+            _movieDbContext.StreamCompanies.Add(streamCompany.ActiveStreamCompany);
             //this is redundant but just to ensure notify handler is up to data, even if it is regenerated each time
-            _notifyHandler.StreamCompanies.Add(companyInfo);
+            _movieDbContext.SaveChanges();
 
-            return View("StreamCompany", new StreamCompanyViewModel() { ActiveStreamCompany = companyInfo });
+
+            _notifyHandler.StreamCompanies.Add(
+                _movieDbContext.StreamCompanies.Where(s => s.Name == streamCompany.ActiveStreamCompany.Name).FirstOrDefault());
+
+            return View("StreamCompany", new StreamCompanyViewModel() { ActiveStreamCompany = streamCompany.ActiveStreamCompany });
         }
         private MovieDbContext _movieDbContext;
         private NotifyAPIHandler _notifyHandler;
