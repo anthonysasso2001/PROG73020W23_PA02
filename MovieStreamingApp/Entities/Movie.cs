@@ -32,5 +32,6 @@ namespace MovieStreamingApp.Entities
 
         public ProductionStudio? ProductionStudio { get; set; }
 
+        public bool StreamingStatus { get; set; } = false;
     }
 }

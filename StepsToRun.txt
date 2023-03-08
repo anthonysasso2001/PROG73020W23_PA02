@@ -1,0 +1,10 @@
+Run in bash, idk if this works with cmd.
+
+docker run -e ACCEPT_EULA=Y -e MSQL_PID="Developer" -e MSSQL_SA_PASSWORD="vWEjUC[f\,yIc4=C:rsZ}Ciee" -e MSSQL_TCP_PORT=1433 -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+
+then run the production app as starup project to add a new streaming company.
+use name MSS Inc. or update appsettings.json in streamingapp project...
+
+rerun the solution by selecting solution>properties>multiple startups> both the projects
+
+should work fine after this, couldn't find a way to just run as exe though

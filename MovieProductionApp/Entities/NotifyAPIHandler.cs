@@ -45,6 +45,8 @@ namespace MovieProductionApp.Entities
 			dbCon.MovieApiData.Add(newMovieInfo);
 
 			dbCon.SaveChanges();
+
+			SendNotification(newMovieInfo);
 		}
 	}
 }

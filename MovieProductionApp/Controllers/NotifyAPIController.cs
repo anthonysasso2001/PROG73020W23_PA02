@@ -66,9 +66,12 @@ namespace MovieProductionApp.Controllers
 			return Json(movieData);
 		}
 
-		[HttpPost("/api/movie-notifications/{id}")]
-		public JsonResult SendInterest([FromBody] StreamCompanyInfo streamCompany, string name)
+		[HttpPost("/api/movie-notifications/{movieName}")]
+		public JsonResult SendInterest(string movieName, [FromBody]string companyName)
 		{
+			if (!_movieDbContext.StreamCompanies.Where(m => m.Name == companyName).Any())
+				return null;
+
 			var movieData = _movieDbContext.MovieApiData
 				.Include(m => m.Movie)
 				.Include(m => m.ProductionStudio)
@@ -83,9 +86,14 @@ namespace MovieProductionApp.Controllers
                     AverageRating = (int)m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
                     GenreId = m.Movie.GenreId,
 					ProductionStudio = m.ProductionStudio
-				}).Where(m => m.Name == name).FirstOrDefault();
+				}).Where(m => m.Name == movieName).FirstOrDefault();
 
-			movieData.StreamPartner = streamCompany.Name;
+			if (movieData.StreamPartner != null)
+			{
+				return Json(null);
+			}
+
+			movieData.StreamPartner = companyName;
 
 			return Json(movieData);
 		}

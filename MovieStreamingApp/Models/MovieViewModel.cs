@@ -9,5 +9,7 @@ namespace MovieStreamingApp.Models
         public List<ProductionStudio>? Studios { get; set; }
 
         public Movie ActiveMovie { get; set; }
+
+        public bool StreamState { get; set; }
     }
 }

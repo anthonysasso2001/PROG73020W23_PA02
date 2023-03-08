@@ -19,3 +19,19 @@
 	<p>@Model.ActiveStreamCompany.StreamGUID</p>
 </div>
 
+<div>
+	<p>Verification Status: </p>
+	@if (@Model.ActiveStreamCompany.verificationStatus)
+	{
+		<p>Verified</p>
+	}
+	else
+	{
+		<p>Not Verified</p>
+	}
+	<form asp-controller="StreamCompany" asp-action="VerifyStreamingCompany" asp-route-id=@Model.ActiveStreamCompany.StreamCompanyInfoId method="post" enctype="application/x-www-form-urlencoded">
+		<button type="submit" class="btn btn-primary">Verify</button>
+	</form>
+	
+</div>
+

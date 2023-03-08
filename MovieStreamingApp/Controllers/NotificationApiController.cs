@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MovieProductionApp.Models;
 using MovieStreamingApp.Entities;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -9,9 +10,10 @@ namespace MovieStreamingApp.Controllers
 	[ApiController()]
 	public class NotificationApiController : ControllerBase
 	{
-		public NotificationApiController(MovieDbContext movieDbContext)
+		public NotificationApiController(MovieDbContext movieDbContext, IConfiguration configuration)
 		{
 			_movieDbContext = movieDbContext;
+			_configuration = configuration;
 		}
 
 		[HttpPost("/api/movies")]
@@ -21,7 +23,7 @@ namespace MovieStreamingApp.Controllers
 			{
 				Name = newInfo.Name,
 				Year = newInfo.Year,
-				Rating = newInfo.Rating,
+				Rating = newInfo.AverageRating,
 				GenreId = newInfo.GenreId,
 				ProductionStudio = newInfo.ProductionStudio
 			};
@@ -43,6 +45,17 @@ namespace MovieStreamingApp.Controllers
 			return Ok();
 		}
 
+		[HttpPost("/api/challenge")]
+		public string RecieveChallenge(APIChallengeRequest challengeInfo)
+		{
+			var Guid = new Guid(_configuration.GetSection("ProductionStudioSettings").GetSection("API_Key").Value);
+
+			string challengeAnswer = Guid.ToString() + challengeInfo.challengeString;
+
+			return challengeAnswer;
+		}
+
 		private MovieDbContext _movieDbContext;
+		private IConfiguration _configuration;
 	}
 }

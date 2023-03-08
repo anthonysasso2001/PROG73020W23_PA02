@@ -12,8 +12,8 @@ using MovieProductionApp.Entities;
 namespace MovieProductionApp.Migrations
 {
     [DbContext(typeof(MovieDbContext))]
-    [Migration("20230308202928_Init")]
-    partial class Init
+    [Migration("20230308213803_ProdInit")]
+    partial class ProdInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

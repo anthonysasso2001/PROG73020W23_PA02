@@ -10,143 +10,145 @@ using NuGet.Protocol;
 
 namespace MovieProductionApp.Controllers
 {
-    public class StreamCompanyController : Controller
-    {
-        public StreamCompanyController(MovieDbContext movieDbContext)
-        {
-            _movieDbContext = movieDbContext;
+	public class StreamCompanyController : Controller
+	{
+		public StreamCompanyController(MovieDbContext movieDbContext)
+		{
+			_movieDbContext = movieDbContext;
 
-            //kind of weird to have the API handler here but needed to add stream companies
-            //properly, and this controller is kind of the "front-end" to that API anyways
-            _notifyHandler = new NotifyAPIHandler()
-            {
-                ProductionStudio = _movieDbContext.ProductionStudios
-                .Select(p => new ProductionStudio()
-                {
-                    Name = p.Name,
-                    ProductionStudioId = p.ProductionStudioId
-                }).First(),
-                StreamCompanies = _movieDbContext.StreamCompanies
-                .Select(i => new StreamCompanyInfo()
-                {
-                    Name = i.Name,
-                    webApiUrl = i.webApiUrl
-                }).ToList()
-            };
-        }
+			//kind of weird to have the API handler here but needed to add stream companies
+			//properly, and this controller is kind of the "front-end" to that API anyways
+			_notifyHandler = new NotifyAPIHandler()
+			{
+				ProductionStudio = _movieDbContext.ProductionStudios
+				.Select(p => new ProductionStudio()
+				{
+					Name = p.Name,
+					ProductionStudioId = p.ProductionStudioId
+				}).First(),
+				StreamCompanies = _movieDbContext.StreamCompanies
+				.Select(i => new StreamCompanyInfo()
+				{
+					Name = i.Name,
+					webApiUrl = i.webApiUrl
+				}).ToList()
+			};
+		}
 
-        // GET: all streaming companies with their registered movies
-        [HttpGet("/movie-registry")]
-        public IActionResult GetMovieRegistry()
-        {
-            var movieRegistryData = _movieDbContext.MovieApiData
-                 .Include(m => m.Movie)
-                 .Include(m => m.ProductionStudio)
-                 .Include(m => m.StreamPartner)
-                 .OrderByDescending(m => m.TimeOfOffer)
-                 .Where(m => m.Availability == true)
-                 .Select(m => new MovieRegistrationViewModel()
-                 {
-                     ActiveMovieInfo = new MovieApiInfo()
-                     {
-                         TimeOfOffer = m.TimeOfOffer,
-                         StreamPartner = m.StreamPartner.Name,
-                         Name = m.Movie.Name,
-                         Year = m.Movie.Year,
-                         AverageRating = (int)m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
-                         GenreId = m.Movie.GenreId,
-                         ProductionStudio = m.ProductionStudio
-                     },
-                     MovieAvailability = m.Availability
-                 }).ToList();
+		// GET: all streaming companies with their registered movies
+		[HttpGet("/movie-registry")]
+		public IActionResult GetMovieRegistry()
+		{
+			var movieRegistryData = _movieDbContext.MovieApiData
+				 .Include(m => m.Movie)
+				 .Include(m => m.ProductionStudio)
+				 .Include(m => m.StreamPartner)
+				 .OrderByDescending(m => m.TimeOfOffer)
+				 .Where(m => m.Availability == true)
+				 .Select(m => new MovieRegistrationViewModel()
+				 {
+					 ActiveMovieInfo = new MovieApiInfo()
+					 {
+						 TimeOfOffer = m.TimeOfOffer,
+						 StreamPartner = m.StreamPartner.Name,
+						 Name = m.Movie.Name,
+						 Year = m.Movie.Year,
+						 AverageRating = (int)m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
+						 GenreId = m.Movie.GenreId,
+						 ProductionStudio = m.ProductionStudio
+					 },
+					 MovieAvailability = m.Availability
+				 }).ToList();
 
-            return View("FullMovieRegistry", movieRegistryData);
-        }
+			return View("FullMovieRegistry", movieRegistryData);
+		}
 
-        //GET: one streaming partner with their api information etc.
-        [HttpGet("/streaming-companies/{id}")]
-        public IActionResult GetStreamingCompanyById(int id)
-        {
-            var streamingCompany = _movieDbContext.StreamCompanies
-                .Where(s => s.StreamCompanyInfoId == id).FirstOrDefault();
+		//GET: one streaming partner with their api information etc.
+		[HttpGet("/streaming-companies/{id}")]
+		public IActionResult GetStreamingCompanyById(int id)
+		{
+			var streamingCompany = _movieDbContext.StreamCompanies
+				.Select(s => new StreamCompanyViewModel()
+				{
+					ActiveStreamCompany = s
+				}).Where(s => s.ActiveStreamCompany.StreamCompanyInfoId == id).FirstOrDefault();
 
-            StreamCompanyViewModel outViewModel = new StreamCompanyViewModel() { ActiveStreamCompany = streamingCompany };
+			return View("StreamCompany", streamingCompany);
+		}
 
-            return View("Details", outViewModel);
-        }
+		[HttpPost("/streaming-companies/verify/{id}")]
+		public IActionResult VerifyStreamingCompany(int id)
+		{
+			//send verification request
+			var streamCompanyInfo = _movieDbContext.StreamCompanies.Where(s => s.StreamCompanyInfoId == id).FirstOrDefault();
 
-        [HttpPost("/streaming-companies/verify")]
-        public IActionResult VerifyStreamingCompany(StreamCompanyViewModel StreamCompany)
-        {
-            //send verification request
-            HttpClient httpClient = new HttpClient();
-            string url = StreamCompany.ActiveStreamCompany.challengeUrl;
-            string randString = RandomNumberGenerator.GetBytes(64).ToString();
+			if (null == streamCompanyInfo)
+				return RedirectToAction("GetStreamingCompanyById", id);
 
-            APIChallengeRequest apichallenge = new APIChallengeRequest()
-            {
-                challengeString = randString,
-            };
+			HttpClient httpClient = new HttpClient();
+			string url = streamCompanyInfo.challengeUrl;
+			string randString = RandomNumberGenerator.GetBytes(64).ToString();
 
-            using (var content = new StringContent(JsonConvert.SerializeObject(apichallenge),System.Text.Encoding.UTF8, "application/json"))
-            {
-                HttpResponseMessage result = httpClient.PostAsync(url, content).Result;
-                string challengeAnswer = StreamCompany.ActiveStreamCompany.StreamGUID.ToString() + randString;
-                if (result.Content.ReadAsStream().ToString() == challengeAnswer)
-                {
-                    var dbStreamCompany = _movieDbContext.StreamCompanies
-                        .Where(s => s.StreamCompanyInfoId == StreamCompany.ActiveStreamCompany.StreamCompanyInfoId).FirstOrDefault();
-                    dbStreamCompany.verificationStatus = true;
+			APIChallengeRequest apichallenge = new APIChallengeRequest()
+			{
+				challengeString = randString,
+			};
 
-                    _movieDbContext.Update(dbStreamCompany);
+			using (var content = new StringContent(JsonConvert.SerializeObject(apichallenge), System.Text.Encoding.UTF8, "application/json"))
+			{
+				HttpResponseMessage result = httpClient.PostAsync(url, content).Result;
+				string challengeAnswer = streamCompanyInfo.StreamGUID.ToString() + randString;
+				if (result.Content.ReadAsStream().ToString() == challengeAnswer)
+				{
+					streamCompanyInfo.verificationStatus = true;
 
-                    _movieDbContext.SaveChanges();
+					_movieDbContext.Update(streamCompanyInfo);
 
-                    StreamCompany.ActiveStreamCompany = dbStreamCompany;
-                }
-            }
+					_movieDbContext.SaveChanges();
+				}
+			}
 
-            return View("StreamCompany", StreamCompany);
-        }
+			return View("StreamCompany", new StreamCompanyViewModel() { ActiveStreamCompany = streamCompanyInfo });
+		}
 
-        [HttpGet("/streaming-companies/register")]
-        public IActionResult RegisterStreamingCompanyRequest()
-        {
-            var newCompany = new StreamCompanyViewModel();
-            return View("NewStreamCompany", newCompany);
-        }
+		[HttpGet("/streaming-companies/register")]
+		public IActionResult RegisterStreamingCompanyRequest()
+		{
+			var newCompany = new StreamCompanyViewModel();
+			return View("NewStreamCompany", newCompany);
+		}
 
-        [HttpPost("/streaming-companies")]
-        public IActionResult AddStreamingCompany(StreamCompanyViewModel streamCompany)
-        {
-            if (null == streamCompany.ActiveStreamCompany ||
-                null == streamCompany.ActiveStreamCompany.Name ||
-                null == streamCompany.ActiveStreamCompany.webApiUrl ||
-                null == streamCompany.ActiveStreamCompany.challengeUrl)
-                return BadRequest();
+		[HttpPost("/streaming-companies")]
+		public IActionResult AddStreamingCompany(StreamCompanyViewModel streamCompany)
+		{
+			if (null == streamCompany.ActiveStreamCompany ||
+				null == streamCompany.ActiveStreamCompany.Name ||
+				null == streamCompany.ActiveStreamCompany.webApiUrl ||
+				null == streamCompany.ActiveStreamCompany.challengeUrl)
+				return BadRequest();
 
-            //generate a custom guid or regenerate if it already exists
-            bool uniqueGuid = false;
-            while (!uniqueGuid)
-            {
+			//generate a custom guid or regenerate if it already exists
+			bool uniqueGuid = false;
+			while (!uniqueGuid)
+			{
 				streamCompany.ActiveStreamCompany.StreamGUID = Guid.NewGuid();
-                // if it exists re-run loop
-                if (!_movieDbContext.StreamCompanies.Any(s => s.StreamGUID == streamCompany.ActiveStreamCompany.StreamGUID))
-                    uniqueGuid = true;
-            }
-            _movieDbContext.StreamCompanies.Add(streamCompany.ActiveStreamCompany);
-            //this is redundant but just to ensure notify handler is up to data, even if it is regenerated each time
-            _movieDbContext.SaveChanges();
+				// if it exists re-run loop
+				if (!_movieDbContext.StreamCompanies.Any(s => s.StreamGUID == streamCompany.ActiveStreamCompany.StreamGUID))
+					uniqueGuid = true;
+			}
+			_movieDbContext.StreamCompanies.Add(streamCompany.ActiveStreamCompany);
+			//this is redundant but just to ensure notify handler is up to data, even if it is regenerated each time
+			_movieDbContext.SaveChanges();
 
 
-            _notifyHandler.StreamCompanies.Add(
-                _movieDbContext.StreamCompanies.Where(s => s.Name == streamCompany.ActiveStreamCompany.Name).FirstOrDefault());
+			_notifyHandler.StreamCompanies.Add(
+				_movieDbContext.StreamCompanies.Where(s => s.Name == streamCompany.ActiveStreamCompany.Name).FirstOrDefault());
 
-            return View("StreamCompany", new StreamCompanyViewModel() { ActiveStreamCompany = streamCompany.ActiveStreamCompany });
-        }
-        private MovieDbContext _movieDbContext;
-        private NotifyAPIHandler _notifyHandler;
-    }
+			return View("StreamCompany", new StreamCompanyViewModel() { ActiveStreamCompany = streamCompany.ActiveStreamCompany });
+		}
+		private MovieDbContext _movieDbContext;
+		private NotifyAPIHandler _notifyHandler;
+	}
 }
 
 /*

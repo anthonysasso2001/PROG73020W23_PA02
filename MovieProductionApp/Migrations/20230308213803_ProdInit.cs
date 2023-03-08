@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MovieProductionApp.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class ProdInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
