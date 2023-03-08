@@ -51,19 +51,22 @@ namespace MovieProductionApp.Entities
 			modelBuilder.Entity<MovieApiData>()
 				.HasKey(m => new { m.MovieId, m.ProductionStudioId });
 
-			//make stream company 
-			modelBuilder.Entity<StreamCompanyInfo>().HasKey(s => s.StreamGUID);
-
-			// make name and webApi unique key for streaming company (in case they have multiple sites etc. they want to be sent to?
+			// make moviedata registereable 1-many with streaming company
 			modelBuilder.Entity<MovieApiData>()
 				.HasOne(m => m.StreamPartner)
 				.WithMany(s => s.RegisteredMovies)
 				.HasForeignKey(m => m.StreamCompanyInfoId);
 
-			//make production company names unique
+			//make production company names unique, and stream guids
 			modelBuilder.Entity<ProductionStudio>()
 				.HasIndex(p => p.Name)
 				.IsUnique();
+
+			modelBuilder.Entity<StreamCompanyInfo>()
+				.HasIndex(s => s.StreamGUID)
+				.IsUnique();
+
+			//now seed data
 
 			modelBuilder.Entity<Genre>().HasData(
 				new Genre() { GenreId = "A", Name = "Action" },

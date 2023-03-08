@@ -34,96 +34,8 @@ namespace MovieProductionApp.Controllers
 			};
 		}
 
-		// GET: api/streamers
-		[HttpGet("/api/streamers")]
-		public JsonResult GetAllStreamers()
-		{
-			var streamers = _movieDbContext.StreamCompanies
-				.OrderByDescending(s => s.Name)
-				.Select(s => new StreamCompanyInfo()
-				{
-					Name = s.Name,
-					webApiUrl = s.webApiUrl
-				}).ToList();
-
-			return Json(streamers);
-		}
-
 		// GET api/streamers/exampleStream
-		[HttpGet("/api/streamers/{name}")]
-		public JsonResult GetStreamerByValue(string name)
-		{
-			var streamer = _movieDbContext.StreamCompanies
-				.Select(s => new StreamCompanyInfo()
-				{
-					Name = s.Name,
-					webApiUrl = s.webApiUrl
-				}).Where(s => s.Name.Equals(name))
-				.FirstOrDefault();
-
-			return Json(streamer);
-		}
-
-		// POST api/<NotifyAPIController>
-		[HttpPost("/api/streamers")]
-		public IActionResult Post([FromBody] StreamCompanyInfo companyInfo)
-		{
-			if (null == companyInfo || null == companyInfo.Name || null == companyInfo.webApiUrl)
-				return BadRequest();
-
-			_movieDbContext.StreamCompanies.Add(companyInfo);
-			//this is redundant but just to ensure notify handler is up to data, even if it is regenerated each time
-			_notifyHandler.StreamCompanies.Add(companyInfo);
-
-			return CreatedAtAction(
-				nameof(StreamCompanyInfo),
-				new { Name = companyInfo.Name },
-				companyInfo);
-		}
-
-		// PUT api/<NotifyAPIController>/5
-		[HttpPut("/api/streamers/{name}")]
-		public IActionResult Put(string name, [FromBody] StreamCompanyInfo updateInfo)
-		{
-			_movieDbContext.StreamCompanies.Update(updateInfo);
-			_movieDbContext.SaveChanges();
-
-			return CreatedAtAction(
-				nameof(StreamCompanyInfo),
-				new { Name = updateInfo.Name },
-				updateInfo);
-		}
-
-		// DELETE api/<NotifyAPIController>/5
-		[HttpDelete("/api/streamers/{name}")]
-		public IActionResult Delete(string name)
-		{
-			var delInfo = _movieDbContext.StreamCompanies
-				.Select(s => new StreamCompanyInfo()
-				{
-					Name = s.Name,
-					webApiUrl = s.webApiUrl
-				}).Where(s => s.Name.Equals(name))
-				.FirstOrDefault();
-
-			if (delInfo == null)
-				return BadRequest();
-
-			_movieDbContext.Remove(delInfo);
-
-			var deleteCompany = _notifyHandler.StreamCompanies.Find(s => s == delInfo);
-
-			if (deleteCompany == null)
-				return BadRequest();
-
-			_notifyHandler.StreamCompanies.Remove(deleteCompany);
-
-			_movieDbContext.SaveChanges();
-			return Ok();
-		}
-
-		// GET api/streamers/exampleStream
-		[HttpGet("/api/studio")]
+		[HttpGet("/api/studio-information")]
 		public JsonResult GetStudio()
 		{
 			var studio = _notifyHandler.ProductionStudio;
@@ -131,7 +43,7 @@ namespace MovieProductionApp.Controllers
 			return Json(studio);
 		}
 
-		[HttpGet("/api/notification")]
+		[HttpGet("/api/movie-notifications")]
 		public JsonResult GetNotification()
 		{
 			var movieReviews = _movieDbContext.MovieApiData
@@ -174,7 +86,7 @@ namespace MovieProductionApp.Controllers
 			return Json(movieData);
 		}
 
-		[HttpPost("/api/notification/{name}")]
+		[HttpPost("/api/movie-notifications/{name}")]
 		public JsonResult GetInterest([FromBody] StreamCompanyInfo streamCompany, string name)
 		{
 			var movieReviews = _movieDbContext.MovieApiData
@@ -221,7 +133,6 @@ namespace MovieProductionApp.Controllers
 		}
 
 		private MovieDbContext _movieDbContext;
-		private readonly IAuthorizationService _authorizationService;
 		private NotifyAPIHandler _notifyHandler;
 	}
 }

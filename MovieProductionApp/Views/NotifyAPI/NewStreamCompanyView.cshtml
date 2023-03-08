@@ -1,0 +1,66 @@
+﻿@model StreamCompanyViewModel
+
+@{
+	ViewData["Title"] = "Add Streaming Company";
+}
+
+<form asp-controller="NotifyAPI" asp-action="AddStreamingCompany" method="post" enctype="application/x-www-form-urlencoded">
+    <div class="text-danger" asp-validation-summary="All"></div>
+
+    <div class="form-group">
+        <label asp-for="ActiveStreamCompany.Name">Name</label>
+        <input type="text" asp-for="ActiveStreamCompany.Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ActiveStreamCompany.webApiUrl">Web API URL</label>
+        <input type="text" asp-for="ActiveStreamCompany.webApiUrl" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ActiveStreamCompany.challengeUrl">Challenge URL</label>
+        <input type="text" asp-for="ActiveStreamCompany.challengeUrl" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+    <a asp-controller="NotifyAPI" asp-action="AddStreamingCompany" class="btn btn-primary">Cancel</a>
+</form>
+
+@*
+	@model MovieViewModel
+
+@{
+    ViewData["Title"] = "Add Movie";
+}
+
+<form asp-controller="Movie" asp-action="AddNewMovie" method="post" enctype="application/x-www-form-urlencoded">
+    <div class="text-danger" asp-validation-summary="All"></div>
+
+    <div class="form-group">
+        <label asp-for="ActiveMovie.Name">Name</label>
+        <input type="text" asp-for="ActiveMovie.Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ActiveMovie.Year">Year</label>
+        <input type="text" asp-for="ActiveMovie.Year" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ActiveMovie.GenreId">Genre</label>
+        <!-- add a drop-down for genre options: -->
+        <select asp-for="ActiveMovie.GenreId" class="form-control">
+            <option value="">Select a genre..</option>
+            @foreach (Genre g in Model.Genres)
+            {
+                <option value="@g.GenreId">@g.Name</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add</button>
+    <a asp-controller="Movie" asp-action="GetAllMovies" class="btn btn-primary">Cancel</a>
+</form>
+
+
+*@
