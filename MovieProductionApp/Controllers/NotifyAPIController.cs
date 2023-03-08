@@ -46,27 +46,6 @@ namespace MovieProductionApp.Controllers
 		[HttpGet("/api/movie-notifications")]
 		public JsonResult GetNotification()
 		{
-			var movieReviews = _movieDbContext.MovieApiData
-				.Include(m => m.Movie)
-				.OrderByDescending(m => m.TimeOfOffer)
-				.Select(m => m.Movie)
-				.Select(m => m.Reviews).FirstOrDefault().ToList();
-
-			//get average rating to send
-			int? movieRating = 0;
-			int count = 0;
-
-			if (movieReviews.IsNullOrEmpty())
-				return Json(null);
-
-			foreach (var review in movieReviews)
-			{
-				movieRating += review.Rating;
-				count++;
-			}
-
-			movieRating /= count;
-
 			var movieData = _movieDbContext.MovieApiData
 				.Include(m => m.Movie)
 				.Include(m => m.ProductionStudio)
@@ -78,7 +57,7 @@ namespace MovieProductionApp.Controllers
 					StreamPartner = m.StreamPartner.Name,
 					Name = m.Movie.Name,
 					Year = m.Movie.Year,
-					Rating = movieRating,
+					AverageRating = (int) m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
 					GenreId = m.Movie.GenreId,
 					ProductionStudio = m.ProductionStudio
 				}).FirstOrDefault();
@@ -86,31 +65,9 @@ namespace MovieProductionApp.Controllers
 			return Json(movieData);
 		}
 
-		[HttpPost("/api/movie-notifications/{name}")]
-		public JsonResult GetInterest([FromBody] StreamCompanyInfo streamCompany, string name)
+		[HttpPost("/api/movie-notifications/{id}")]
+		public JsonResult SendInterest([FromBody] StreamCompanyInfo streamCompany, string name)
 		{
-			var movieReviews = _movieDbContext.MovieApiData
-				.Include(m => m.Movie)
-				.OrderByDescending(m => m.TimeOfOffer)
-				.Select (m => m.Movie)
-				.Where(m => m.Name == name)
-				.Select(m => m.Reviews).FirstOrDefault().ToList();
-
-			//get average rating to send
-			int? movieRating = 0;
-			int count = 0;
-
-			if (movieReviews.IsNullOrEmpty())
-				return Json(null);
-
-			foreach (var review in movieReviews)
-			{
-				movieRating += review.Rating;
-				count++;
-			}
-
-			movieRating /= count;
-
 			var movieData = _movieDbContext.MovieApiData
 				.Include(m => m.Movie)
 				.Include(m => m.ProductionStudio)
@@ -122,14 +79,14 @@ namespace MovieProductionApp.Controllers
 					StreamPartner = m.StreamPartner.Name,
 					Name = m.Movie.Name,
 					Year = m.Movie.Year,
-					Rating = movieRating,
-					GenreId = m.Movie.GenreId,
+                    AverageRating = (int)m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
+                    GenreId = m.Movie.GenreId,
 					ProductionStudio = m.ProductionStudio
 				}).Where(m => m.Name == name).FirstOrDefault();
 
 			movieData.StreamPartner = streamCompany.Name;
 
-			return Json(null);
+			return Json(movieData);
 		}
 
 		private MovieDbContext _movieDbContext;

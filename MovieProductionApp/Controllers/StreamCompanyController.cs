@@ -34,31 +34,32 @@ namespace MovieProductionApp.Controllers
         [HttpGet("/streaming-companies")]
         public IActionResult GetAllStreamingCompanies()
         {
-			var allStreamCompanies = _movieDbContext.StreamCompanies
-				.Include(s => s.RegisteredMovies)
-				.OrderByDescending(s => s.Name)
-				.Select(s => new StreamCompanyViewModel()
-				{
-					ActiveStreamCompany = s
-				}).ToList();
+            var allStreamCompanies = _movieDbContext.StreamCompanies
+                .Include(s => s.RegisteredMovies)
+                .OrderByDescending(s => s.Name)
+                .Select(s => new StreamCompanyViewModel() { ActiveStreamCompany = s }).ToList();
 
-			return View("Items", allStreamCompanies);
+            return View("Items", allStreamCompanies);
         }
 
-		//GET: one streaming partner with their api information etc.
-		[HttpGet("/streaming-companies/{id}")]
-		public IActionResult GetStreamingCompanyById(int id)
-		{
-			var streamingCompany = _movieDbContext.StreamCompanies
-				.Where(s => s.StreamCompanyInfoId == id).FirstOrDefault();
+        //GET: one streaming partner with their api information etc.
+        [HttpGet("/streaming-companies/{id}")]
+        public IActionResult GetStreamingCompanyById(int id)
+        {
+            var streamingCompany = _movieDbContext.StreamCompanies
+                .Where(s => s.StreamCompanyInfoId == id).FirstOrDefault();
 
-			StreamCompanyViewModel outViewModel = new StreamCompanyViewModel()
-			{
-				ActiveStreamCompany = streamingCompany
-			};
+            StreamCompanyViewModel outViewModel = new StreamCompanyViewModel() { ActiveStreamCompany = streamingCompany };
 
-			return View("Details", outViewModel);
-		}
+            return View("Details", outViewModel);
+        }
+
+        [HttpGet("/streaming-companies/register")]
+        public IActionResult RegisterStreamingCompanyRequest()
+        {
+            var newCompany = new StreamCompanyViewModel();
+            return View("NewStreamCompany", newCompany);
+        }
 
         [HttpPost("/streaming-companies")]
         public IActionResult AddStreamingCompany(StreamCompanyViewModel streamCompany)
@@ -68,28 +69,26 @@ namespace MovieProductionApp.Controllers
             if (null == companyInfo || null == companyInfo.Name || null == companyInfo.webApiUrl || null == companyInfo.challengeUrl)
                 return BadRequest();
 
-			//generate a custom guid or regenerate if it already exists
-			while (null == companyInfo.StreamGUID)
-			{
-				companyInfo.StreamGUID = Guid.NewGuid();
-				// if it exists re-run loop
-				if (_movieDbContext.StreamCompanies.Any(s => s.StreamGUID == companyInfo.StreamGUID))
-					companyInfo.StreamGUID = null;
-			}
+            //generate a custom guid or regenerate if it already exists
+            while (null == companyInfo.StreamGUID)
+            {
+                companyInfo.StreamGUID = Guid.NewGuid();
+                // if it exists re-run loop
+                if (_movieDbContext.StreamCompanies.Any(s => s.StreamGUID == companyInfo.StreamGUID))
+                    companyInfo.StreamGUID = null;
+            }
             _movieDbContext.StreamCompanies.Add(companyInfo);
             //this is redundant but just to ensure notify handler is up to data, even if it is regenerated each time
             _notifyHandler.StreamCompanies.Add(companyInfo);
 
-			return RedirectToRoute("/streaming-companies", companyInfo.StreamCompanyInfoId);
+            return View("StreamCompany", new StreamCompanyViewModel() { ActiveStreamCompany = companyInfo });
         }
-
         private MovieDbContext _movieDbContext;
         private NotifyAPIHandler _notifyHandler;
     }
 }
 
 /*
-
 		// GET api/streamers/exampleStream
 		[HttpGet("/api/streamCompanies/{name}")]
 		public JsonResult GetStreamingCompanyByName(string name)

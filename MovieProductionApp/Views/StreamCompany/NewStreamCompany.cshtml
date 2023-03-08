@@ -1,10 +1,10 @@
 ﻿@model StreamCompanyViewModel
 
 @{
-	ViewData["Title"] = "Add Streaming Company";
+	ViewData["Title"] = "Register Streaming Company";
 }
 
-<form asp-controller="NotifyAPI" asp-action="AddStreamingCompany" method="post" enctype="application/x-www-form-urlencoded">
+<form asp-controller="StreamCompany" asp-action="AddStreamingCompany" method="post" enctype="application/x-www-form-urlencoded">
     <div class="text-danger" asp-validation-summary="All"></div>
 
     <div class="form-group">
@@ -23,7 +23,7 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Register</button>
-    <a asp-controller="NotifyAPI" asp-action="AddStreamingCompany" class="btn btn-primary">Cancel</a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Cancel</a>
 </form>
 
 @*

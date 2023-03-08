@@ -14,7 +14,7 @@ namespace MovieProductionApp.Entities
 
 		public int? Year { get; set; }
 
-		public int? Rating { get; set; }
+		public int? AverageRating { get; set; }
 
 		public string? GenreId { get; set; }
 
