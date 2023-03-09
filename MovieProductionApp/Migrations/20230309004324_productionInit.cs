@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MovieProductionApp.Migrations
 {
     /// <inheritdoc />
-    public partial class ProdInit : Migration
+    public partial class productionInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -199,7 +199,7 @@ namespace MovieProductionApp.Migrations
             migrationBuilder.InsertData(
                 table: "ProductionStudios",
                 columns: new[] { "ProductionStudioId", "Name" },
-                values: new object[] { 1, "MPC Ltd." });
+                values: new object[] { 2, "MPC Productions" });
 
             migrationBuilder.InsertData(
                 table: "Movies",
@@ -229,9 +229,9 @@ namespace MovieProductionApp.Migrations
                 columns: new[] { "MovieId", "ProductionStudioId", "Availability", "StreamCompanyInfoId", "TimeOfOffer" },
                 values: new object[,]
                 {
-                    { 1, 1, true, null, new DateTime(2010, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, 1, false, null, new DateTime(2012, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, 1, true, null, new DateTime(2020, 9, 30, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, 2, true, null, new DateTime(2010, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 2, false, null, new DateTime(2012, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, 2, true, null, new DateTime(2020, 9, 30, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(

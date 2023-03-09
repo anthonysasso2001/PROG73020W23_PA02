@@ -59,8 +59,8 @@ namespace MovieProductionApp.Controllers
 					Name = m.Movie.Name,
 					Year = m.Movie.Year,
 					AverageRating = (int) m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
-					GenreId = m.Movie.GenreId,
-					ProductionStudio = m.ProductionStudio
+					GenreName = m.Movie.Genre.Name,
+					ProductionStudioName = m.ProductionStudio.Name
 				}).FirstOrDefault();
 
 			return Json(movieData);
@@ -84,8 +84,8 @@ namespace MovieProductionApp.Controllers
 					Name = m.Movie.Name,
 					Year = m.Movie.Year,
                     AverageRating = (int)m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
-                    GenreId = m.Movie.GenreId,
-					ProductionStudio = m.ProductionStudio
+                    GenreName = m.Movie.Genre.Name,
+					ProductionStudioName = m.ProductionStudio.Name
 				}).Where(m => m.Name == movieName).FirstOrDefault();
 
 			if (movieData.StreamPartner != null)

@@ -12,15 +12,12 @@ namespace MovieProductionApp.Controllers
 		public MovieController(MovieDbContext movieDbContext)
 		{
 			_movieDbContext = movieDbContext;
+			
+			var proStudio = _movieDbContext.ProductionStudios.FirstOrDefault();
 
 			_notifyHandler = new NotifyAPIHandler()
 			{
-				ProductionStudio = _movieDbContext.ProductionStudios
-				.Select(p => new ProductionStudio()
-				{
-					Name = p.Name,
-					ProductionStudioId = p.ProductionStudioId
-				}).First(),
+				ProductionStudio = proStudio,
 				StreamCompanies = _movieDbContext.StreamCompanies
 				.Select(i => new StreamCompanyInfo()
 				{
@@ -87,7 +84,10 @@ namespace MovieProductionApp.Controllers
 				TempData["LastActionMessage"] = $"The movie \"{movieViewModel.ActiveMovie.Name}\" ({movieViewModel.ActiveMovie.Year}) was added.";
 
 				//register and broadcast new movie once it is added
-				_notifyHandler.registerMovie(movieViewModel.ActiveMovie, _movieDbContext);
+				var newMovie = movieViewModel.ActiveMovie;
+
+				newMovie.Genre = _movieDbContext.Genres.Where(g => g.GenreId == movieViewModel.ActiveMovie.GenreId).FirstOrDefault();
+				_notifyHandler.registerMovie(newMovie, _movieDbContext);
 
 				return RedirectToAction("GetAllMovies", "Movie");
 			}

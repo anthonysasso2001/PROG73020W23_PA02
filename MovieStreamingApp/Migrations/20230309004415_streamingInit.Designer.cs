@@ -12,8 +12,8 @@ using MovieStreamingApp.Entities;
 namespace MovieStreamingApp.Migrations
 {
     [DbContext(typeof(MovieDbContext))]
-    [Migration("20230308213916_streamInit")]
-    partial class streamInit
+    [Migration("20230309004415_streamingInit")]
+    partial class streamingInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

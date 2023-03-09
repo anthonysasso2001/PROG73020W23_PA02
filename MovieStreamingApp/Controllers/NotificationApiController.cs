@@ -19,26 +19,38 @@ namespace MovieStreamingApp.Controllers
 		[HttpPost("/api/movies")]
 		public IActionResult GetNewMovie([FromBody] MovieApiInfo newInfo)
 		{
+			ProductionStudio studio = new ProductionStudio();
+			if (!_movieDbContext.Studios.Where(p => p.Name == newInfo.ProductionStudioName).Any())
+			{
+				studio.Name = newInfo.Name;
+				_movieDbContext.Studios.Add(studio);
+				_movieDbContext.SaveChanges();
+			}
+
+			studio = _movieDbContext.Studios.Where(p => p.Name == newInfo.ProductionStudioName).FirstOrDefault();
+
 			Movie newMovie = new Movie()
 			{
 				Name = newInfo.Name,
 				Year = newInfo.Year,
 				Rating = newInfo.AverageRating,
-				GenreId = newInfo.GenreId,
-				ProductionStudio = newInfo.ProductionStudio
+				GenreId = _movieDbContext.Genres.Where(g => g.Name == newInfo.GenreName).FirstOrDefault().GenreId,
+				ProductionStudio = studio
 			};
 
-			var addGenre = _movieDbContext.Genres
-				.Select(g => new Genre()
+			Genre? addGenre = null;
+
+			if(!_movieDbContext.Genres.Where(g => g.Name == newInfo.GenreName).Any())
+			{
+				addGenre = new Genre()
 				{
-					GenreId = g.GenreId,
-					Name = g.Name
-				}).Where(g => g.GenreId == newInfo.GenreId)
-				.FirstOrDefault();
+					Name = newInfo.GenreName
+				};
+				_movieDbContext.Genres.Add(addGenre);
+				_movieDbContext.SaveChanges();
+			}
 
-			newMovie.Genre = addGenre;
-
-			_movieDbContext.Add(newMovie);
+			_movieDbContext.Movies.Add(newMovie);
 
 			_movieDbContext.SaveChanges();
 

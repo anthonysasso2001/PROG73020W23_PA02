@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.Net;
 
 namespace MovieProductionApp.Entities
@@ -9,11 +10,11 @@ namespace MovieProductionApp.Entities
 
 		public List<StreamCompanyInfo> StreamCompanies { get; set; }
 
-		public bool sendToOne(MovieApiData newMovie, string webAPI)
+		public bool sendToOne(MovieApiInfo newMovie, string webAPI)
 		{
 			HttpClient client = new HttpClient();
 
-			using (var content = new StringContent(JsonConvert.SerializeObject(newMovie), System.Text.Encoding.UTF8, webAPI))
+			using (var content = new StringContent(JsonConvert.SerializeObject(newMovie), System.Text.Encoding.UTF8, "application/json"))
 			{
 				HttpResponseMessage result = client.PostAsync(webAPI, content).Result;
 				if (result.StatusCode == HttpStatusCode.Created)
@@ -23,7 +24,7 @@ namespace MovieProductionApp.Entities
 			}
 		}
 
-		public virtual void SendNotification(MovieApiData newMovie)
+		public virtual void SendNotification(MovieApiInfo newMovie)
 		{
 			foreach (var streamer in StreamCompanies)
 				sendToOne(newMovie, streamer.webApiUrl.ToString());
@@ -31,20 +32,32 @@ namespace MovieProductionApp.Entities
 
 		public void registerMovie(Movie newMovie, MovieDbContext dbCon)
 		{
-			MovieApiData newMovieInfo = new MovieApiData();
+			MovieApiData newMovieData = new MovieApiData();
 
 			// update movie info with current time offer is created, and production studio information, and the movie.
-			newMovieInfo.TimeOfOffer = DateTime.UtcNow;
+			newMovieData.TimeOfOffer = DateTime.UtcNow;
 
-			newMovieInfo.ProductionStudioId = ProductionStudio.ProductionStudioId;
-			newMovieInfo.ProductionStudio = ProductionStudio;
+			newMovieData.ProductionStudioId = ProductionStudio.ProductionStudioId;
 
-			newMovieInfo.MovieId = newMovie.MovieId;
-			newMovieInfo.Movie = newMovie;
+			newMovieData.MovieId = newMovie.MovieId;
 
-			dbCon.MovieApiData.Add(newMovieInfo);
+			dbCon.MovieApiData.Add(newMovieData);
 
 			dbCon.SaveChanges();
+			var rating = 0;
+
+			if(!newMovieData.Movie.Reviews.IsNullOrEmpty())
+				rating = (int)newMovieData.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault();
+			
+			var newMovieInfo = new MovieApiInfo()
+			{
+				TimeOfOffer = newMovieData.TimeOfOffer,
+				Name = new string(newMovieData.Movie.Name),
+				Year = newMovieData.Movie.Year,
+				AverageRating = rating,
+				GenreName = newMovieData.Movie.Genre.Name,
+				ProductionStudioName = newMovieData.ProductionStudio.Name
+			};
 
 			SendNotification(newMovieInfo);
 		}

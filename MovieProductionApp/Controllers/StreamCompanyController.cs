@@ -54,8 +54,8 @@ namespace MovieProductionApp.Controllers
 						 Name = m.Movie.Name,
 						 Year = m.Movie.Year,
 						 AverageRating = (int)m.Movie.Reviews.Average(r => r.Rating).GetValueOrDefault(),
-						 GenreId = m.Movie.GenreId,
-						 ProductionStudio = m.ProductionStudio
+						 GenreName = m.Movie.Genre.Name,
+						 ProductionStudioName = m.ProductionStudio.Name
 					 },
 					 MovieAvailability = m.Availability
 				 }).ToList();

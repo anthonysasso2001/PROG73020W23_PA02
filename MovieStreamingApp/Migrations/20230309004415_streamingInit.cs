@@ -7,7 +7,7 @@
 namespace MovieStreamingApp.Migrations
 {
     /// <inheritdoc />
-    public partial class streamInit : Migration
+    public partial class streamingInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

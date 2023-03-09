@@ -238,10 +238,10 @@ namespace MovieProductionApp.Migrations
 
             modelBuilder.Entity("MovieProductionApp.Entities.MovieApiData", b =>
                 {
-                    b.Property<int?>("MovieId")
+                    b.Property<int>("MovieId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductionStudioId")
+                    b.Property<int>("ProductionStudioId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Availability")
@@ -265,21 +265,21 @@ namespace MovieProductionApp.Migrations
                         new
                         {
                             MovieId = 1,
-                            ProductionStudioId = 1,
+                            ProductionStudioId = 2,
                             Availability = true,
                             TimeOfOffer = new DateTime(2010, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             MovieId = 2,
-                            ProductionStudioId = 1,
+                            ProductionStudioId = 2,
                             Availability = false,
                             TimeOfOffer = new DateTime(2012, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             MovieId = 3,
-                            ProductionStudioId = 1,
+                            ProductionStudioId = 2,
                             Availability = true,
                             TimeOfOffer = new DateTime(2020, 9, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
@@ -307,8 +307,8 @@ namespace MovieProductionApp.Migrations
                     b.HasData(
                         new
                         {
-                            ProductionStudioId = 1,
-                            Name = "MPC Ltd."
+                            ProductionStudioId = 2,
+                            Name = "MPC Productions"
                         });
                 });
 

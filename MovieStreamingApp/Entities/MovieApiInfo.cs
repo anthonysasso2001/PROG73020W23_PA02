@@ -8,7 +8,7 @@ namespace MovieStreamingApp.Entities
 		//this represents the time the offer was first created
 		public DateTime TimeOfOffer { get; set; }
 
-		public string? StreamPartner { get; set; } = null!;
+		public string? StreamPartner { get; set; } = "";
 
 		public string Name { get; set; }
 
@@ -16,8 +16,8 @@ namespace MovieStreamingApp.Entities
 
 		public int? AverageRating { get; set; }
 
-		public string? GenreId { get; set; }
+		public string? GenreName { get; set; }
 
-		public ProductionStudio? ProductionStudio { get; set; }
+		public string? ProductionStudioName { get; set; }
 	}
 }
